@@ -1,0 +1,780 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mobile Network Tower Optimization</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f1f5fb;
+    color: #172b4d;
+    font-size: 16px;
+}
+
+header {
+    background: #123d82;
+    color: white;
+    padding: 24px;
+}
+
+header h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+header p {
+    font-size: 17px;
+}
+
+.container {
+    max-width: 1450px;
+    margin: auto;
+    padding: 24px;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.card {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px #00000012;
+    border: 1px solid #dbe5f3;
+}
+
+.card h3 {
+    color: #536781;
+    font-size: 17px;
+    margin-bottom: 14px;
+}
+
+.card p {
+    color: #123d82;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 22px;
+}
+
+h2 {
+    color: #123d82;
+    font-size: 23px;
+    margin-bottom: 20px;
+}
+
+.section {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    margin-bottom: 22px;
+    border: 1px solid #dbe5f3;
+    box-shadow: 0 3px 12px #0000000b;
+}
+
+button {
+    width: 100%;
+    border: none;
+    border-radius: 8px;
+    padding: 17px;
+    color: white;
+    font-size: 17px;
+    font-weight: bold;
+    margin-bottom: 13px;
+    cursor: pointer;
+    text-align: left;
+}
+
+button:hover {
+    opacity: 0.88;
+}
+
+.blue { background: #1765df; }
+.green { background: #078858; }
+.teal { background: #079db8; }
+.purple { background: #743ce0; }
+.gray { background: #63748b; }
+
+#map {
+    width: 100%;
+    height: 390px;
+    border: 1px solid #dbe5f3;
+    border-radius: 8px;
+    background: #f8fbff;
+}
+
+.legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 18px;
+    font-size: 14px;
+}
+
+.dot {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+}
+
+th, td {
+    border: 1px solid #dbe5f3;
+    padding: 13px 10px;
+    text-align: left;
+}
+
+th {
+    background: #eaf1fc;
+    color: #123d82;
+}
+
+tr:nth-child(even) {
+    background: #f8faff;
+}
+
+.status {
+    background: #e1f8ec;
+    color: #087443;
+    padding: 7px 10px;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+#message {
+    background: #e8f4ff;
+    border-left: 5px solid #1765df;
+    padding: 18px;
+    border-radius: 7px;
+    line-height: 1.7;
+    font-size: 16px;
+    margin-top: 15px;
+}
+
+.result {
+    border-bottom: 1px solid #e0e8f3;
+    padding: 15px 4px;
+    font-size: 17px;
+    line-height: 1.6;
+}
+
+footer {
+    background: #123d82;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    font-size: 15px;
+}
+
+@media (max-width: 900px) {
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .container {
+        padding: 12px;
+    }
+
+    header h1 {
+        font-size: 23px;
+    }
+
+    .section {
+        overflow-x: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>📡 Mobile Network Tower Placement</h1>
+    <p>Connectivity Optimization System | Design and Analysis of Algorithms</p>
+</header>
+
+<div class="container">
+
+    <div class="stats">
+        <div class="card">
+            <h3>Total Demand Areas</h3>
+            <p id="areaCount">6</p>
+        </div>
+
+        <div class="card">
+            <h3>Towers Selected</h3>
+            <p id="towerCount">0</p>
+        </div>
+
+        <div class="card">
+            <h3>Installation Cost</h3>
+            <p id="cost">₹ 0</p>
+        </div>
+
+        <div class="card">
+            <h3>Areas Covered</h3>
+            <p id="coverage">0 / 6</p>
+        </div>
+    </div>
+
+    <div class="layout">
+
+        <div>
+            <div class="section">
+                <h2>🗺️ Network Coverage Map</h2>
+
+                <svg id="map" viewBox="0 0 700 390"
+                     role="img"
+                     aria-label="Network tower placement map">
+                    <text x="350" y="190" text-anchor="middle"
+                          font-size="20" fill="#63748b">
+                        Click Optimize Tower Placement
+                    </text>
+                </svg>
+
+                <div class="legend">
+                    <span><i class="dot" style="background:#1765df"></i>Demand Area</span>
+                    <span><i class="dot" style="background:#078858"></i>Selected Tower</span>
+                    <span><i class="dot" style="background:#ffb020"></i>Coverage Radius</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📋 Demand Area Details</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Area</th>
+                            <th>Coordinates</th>
+                            <th>Population</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="areaTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div>
+            <div class="section">
+                <h2>⚙️ Operations</h2>
+
+                <button class="blue" onclick="showAreas()">
+                    1. View Demand Areas
+                </button>
+
+                <button class="green" onclick="optimizeTowers()">
+                    2. Optimize Tower Placement
+                </button>
+
+                <button class="teal" onclick="buildNetwork()">
+                    3. Build Network Connectivity
+                </button>
+
+                <button class="purple" onclick="findRoute()">
+                    4. Find Shortest Route
+                </button>
+
+                <button class="gray" onclick="resetSystem()">
+                    ↻ Reset System
+                </button>
+
+                <div id="message">
+                    Welcome! Select an operation to begin.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📊 Results</h2>
+
+                <div class="result">
+                    <strong>Selected Towers:</strong>
+                    <div id="selectedResult">Not selected</div>
+                </div>
+
+                <div class="result">
+                    <strong>Total Installation Cost:</strong>
+                    <div id="costResult">₹ 0</div>
+                </div>
+
+                <div class="result">
+                    <strong>Covered Demand Areas:</strong>
+                    <div id="coveredResult">0 / 6</div>
+                </div>
+
+                <div class="result">
+                    <strong>Network Connectivity:</strong>
+                    <div id="networkResult">Not built</div>
+                </div>
+
+                <div class="result">
+                    <strong>Shortest Route:</strong>
+                    <div id="routeResult">Not calculated</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<footer>
+    Mobile Network Tower Placement and Connectivity Optimization System
+    <br><br>
+    DAA Project | Educational Demonstration
+</footer>
+
+<script>
+const areas = [
+    {name:"A", x:0, y:0, population:1200},
+    {name:"B", x:2, y:1, population:900},
+    {name:"C", x:4, y:0, population:1500},
+    {name:"D", x:1, y:4, population:800},
+    {name:"E", x:4, y:4, population:1100},
+    {name:"F", x:7, y:2, population:1300}
+];
+
+const towers = [
+    {name:"T1", x:0, y:1, cost:80},
+    {name:"T2", x:3, y:1, cost:100},
+    {name:"T3", x:1, y:4, cost:90},
+    {name:"T4", x:4, y:4, cost:110},
+    {name:"T5", x:7, y:2, cost:70}
+];
+
+const RADIUS = 2.6;
+const MAX_TOWERS = 4;
+
+let selected = [];
+let networkEdges = [];
+let route = [];
+
+function distance(a, b) {
+    return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+function showMessage(text) {
+    document.getElementById("message").innerHTML = text;
+}
+
+function showAreas() {
+    selected = [];
+    networkEdges = [];
+    route = [];
+
+    document.getElementById("networkResult").textContent = "Not built";
+    document.getElementById("routeResult").textContent = "Not calculated";
+
+    renderTable();
+    renderMap();
+    updateStats();
+
+    showMessage(
+        "<strong>Demand Areas Loaded</strong><br>" +
+        "Total 6 demand areas are available for analysis."
+    );
+}
+
+function optimizeTowers() {
+    selected = [];
+    networkEdges = [];
+    route = [];
+
+    let uncovered = new Set(areas.map(a => a.name));
+
+    while (uncovered.size > 0 && selected.length < MAX_TOWERS) {
+        let bestTower = null;
+        let bestCovered = [];
+
+        for (const tower of towers) {
+            if (selected.includes(tower)) continue;
+
+            const newlyCovered = areas.filter(area =>
+                uncovered.has(area.name) &&
+                distance(tower, area) <= RADIUS
+            );
+
+            if (
+                newlyCovered.length > bestCovered.length ||
+                (
+                    newlyCovered.length === bestCovered.length &&
+                    newlyCovered.length > 0 &&
+                    bestTower &&
+                    tower.cost < bestTower.cost
+                )
+            ) {
+                bestTower = tower;
+                bestCovered = newlyCovered;
+            }
+        }
+
+        if (!bestTower || bestCovered.length === 0) break;
+
+        selected.push(bestTower);
+
+        bestCovered.forEach(area => uncovered.delete(area.name));
+    }
+
+    renderTable();
+    renderMap();
+    updateStats();
+
+    document.getElementById("networkResult").textContent = "Not built";
+    document.getElementById("routeResult").textContent = "Not calculated";
+
+    const covered = getCoveredAreas();
+
+    showMessage(
+        "<strong>Tower Placement Completed</strong><br>" +
+        "Selected towers: " + selected.map(t => t.name).join(", ") +
+        "<br>Covered areas: " + covered.length + " out of " + areas.length +
+        "<br>Uncovered areas: " +
+        areas.filter(a => !covered.includes(a)).map(a => a.name).join(", ")
+    );
+}
+
+function getCoveredAreas() {
+    return areas.filter(area =>
+        selected.some(tower => distance(tower, area) <= RADIUS)
+    );
+}
+
+function buildNetwork() {
+    if (selected.length < 2) {
+        showMessage("Please optimize tower placement first.");
+        return;
+    }
+
+    networkEdges = [];
+    route = [];
+
+    // Prim's Minimum Spanning Tree algorithm
+    const visited = new Set([selected[0]]);
+
+    while (visited.size < selected.length) {
+        let bestEdge = null;
+        let bestDistance = Infinity;
+
+        for (const a of visited) {
+            for (const b of selected) {
+                if (visited.has(b)) continue;
+
+                const d = distance(a, b);
+
+                if (d < bestDistance) {
+                    bestDistance = d;
+                    bestEdge = {a, b, d};
+                }
+            }
+        }
+
+        if (!bestEdge) break;
+
+        networkEdges.push(bestEdge);
+        visited.add(bestEdge.b);
+    }
+
+    document.getElementById("networkResult").textContent =
+        networkEdges.length + " links (MST)";
+
+    document.getElementById("routeResult").textContent = "Not calculated";
+
+    renderMap();
+
+    showMessage(
+        "<strong>Network Connectivity Built</strong><br>" +
+        "Prim's algorithm created " + networkEdges.length +
+        " links to connect the selected towers."
+    );
+}
+
+function findRoute() {
+    if (selected.length < 2) {
+        showMessage("Please optimize tower placement first.");
+        return;
+    }
+
+    // Dijkstra's algorithm on the complete tower graph
+    const start = selected[0];
+    const end = selected[selected.length - 1];
+
+    const dist = new Map(selected.map(t => [t, Infinity]));
+    const previous = new Map();
+    const unvisited = new Set(selected);
+
+    dist.set(start, 0);
+
+    while (unvisited.size > 0) {
+        let current = null;
+        let best = Infinity;
+
+        for (const tower of unvisited) {
+            if (dist.get(tower) < best) {
+                best = dist.get(tower);
+                current = tower;
+            }
+        }
+
+        if (!current || best === Infinity) break;
+
+        unvisited.delete(current);
+
+        for (const neighbor of unvisited) {
+            const alt = dist.get(current) + distance(current, neighbor);
+
+            if (alt < dist.get(neighbor)) {
+                dist.set(neighbor, alt);
+                previous.set(neighbor, current);
+            }
+        }
+    }
+
+    route = [];
+    let current = end;
+
+    while (current) {
+        route.unshift(current);
+        if (current === start) break;
+        current = previous.get(current);
+    }
+
+    const routeDistance = dist.get(end);
+
+    document.getElementById("routeResult").textContent =
+        route.map(t => t.name).join(" → ") +
+        " (Distance: " + routeDistance.toFixed(2) + " units)";
+
+    renderMap();
+
+    showMessage(
+        "<strong>Shortest Route Found</strong><br>" +
+        "Route: " + route.map(t => t.name).join(" → ") +
+        "<br>Total distance: " + routeDistance.toFixed(2) + " units" +
+        "<br>Algorithm: Dijkstra's Algorithm"
+    );
+}
+
+function updateStats() {
+    const covered = getCoveredAreas();
+    const totalCost = selected.reduce((sum, t) => sum + t.cost, 0);
+
+    document.getElementById("towerCount").textContent = selected.length;
+    document.getElementById("cost").textContent = "₹ " + totalCost;
+    document.getElementById("coverage").textContent =
+        covered.length + " / " + areas.length;
+
+    document.getElementById("selectedResult").textContent =
+        selected.length ? selected.map(t => t.name).join(", ") : "Not selected";
+
+    document.getElementById("costResult").textContent = "₹ " + totalCost;
+
+    document.getElementById("coveredResult").textContent =
+        covered.length + " / " + areas.length;
+
+    renderTable();
+}
+
+function renderTable() {
+    const covered = getCoveredAreas();
+
+    document.getElementById("areaTable").innerHTML =
+        areas.map(area => {
+            const isCovered = covered.includes(area);
+
+            return `
+                <tr>
+                    <td>${area.name}</td>
+                    <td>(${area.x}, ${area.y})</td>
+                    <td>${area.population}</td>
+                    <td>
+                        <span class="status"
+                        style="${isCovered ? "" : "background:#ffe8df;color:#a12b15"}">
+                        ${isCovered ? "Covered" : "Not Covered"}
+                        </span>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+}
+
+function renderMap() {
+    const svg = document.getElementById("map");
+    const ns = "http://www.w3.org/2000/svg";
+
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+    function element(tag, attrs, content) {
+        const el = document.createElementNS(ns, tag);
+
+        for (const [key, value] of Object.entries(attrs || {})) {
+            el.setAttribute(key, value);
+        }
+
+        if (content !== undefined) el.textContent = content;
+
+        svg.appendChild(el);
+        return el;
+    }
+
+    function px(x) { return 55 + x * 80; }
+    function py(y) { return 330 - y * 65; }
+
+    // Background and coordinate grid
+    element("rect", {
+        x: 40, y: 25, width: 610, height: 315,
+        fill: "#f8fbff", stroke: "#cbd9eb"
+    });
+
+    for (let x = 0; x <= 7; x++) {
+        element("line", {
+            x1: px(x), y1: 25, x2: px(x), y2: 340,
+            stroke: "#e1e9f4", "stroke-width": 1
+        });
+
+        element("text", {
+            x: px(x), y: 360, "text-anchor": "middle",
+            fill: "#52647a", "font-size": 13
+        }, x);
+    }
+
+    for (let y = 0; y <= 4; y++) {
+        element("line", {
+            x1: 40, y1: py(y), x2: 650, y2: py(y),
+            stroke: "#e1e9f4", "stroke-width": 1
+        });
+
+        element("text", {
+            x: 25, y: py(y) + 5, "text-anchor": "middle",
+            fill: "#52647a", "font-size": 13
+        }, y);
+    }
+
+    // Coverage circles
+    selected.forEach(tower => {
+        element("circle", {
+            cx: px(tower.x),
+            cy: py(tower.y),
+            r: RADIUS * 38,
+            fill: "#14b87a",
+            "fill-opacity": 0.12,
+            stroke: "#14a66d",
+            "stroke-opacity": 0.7,
+            "stroke-width": 1.5
+        });
+    });
+
+    // MST links
+    networkEdges.forEach(edge => {
+        element("line", {
+            x1: px(edge.a.x), y1: py(edge.a.y),
+            x2: px(edge.b.x), y2: py(edge.b.y),
+            stroke: "#078858", "stroke-width": 4
+        });
+    });
+
+    // Shortest route links
+    for (let i = 0; i < route.length - 1; i++) {
+        element("line", {
+            x1: px(route[i].x), y1: py(route[i].y),
+            x2: px(route[i + 1].x), y2: py(route[i + 1].y),
+            stroke: "#8b43e8", "stroke-width": 4,
+            "stroke-dasharray": "9 6"
+        });
+    }
+
+    // Demand areas
+    const covered = getCoveredAreas();
+
+    areas.forEach(area => {
+        const isCovered = covered.includes(area);
+
+        element("circle", {
+            cx: px(area.x), cy: py(area.y), r: 8,
+            fill: isCovered ? "#1765df" : "#e84d3d",
+            stroke: "white", "stroke-width": 2
+        });
+
+        element("text", {
+            x: px(area.x) + 11,
+            y: py(area.y) - 10,
+            fill: "#123d82",
+            "font-size": 16,
+            "font-weight": "bold"
+        }, area.name);
+    });
+
+    // Tower markers
+    selected.forEach(tower => {
+        element("circle", {
+            cx: px(tower.x), cy: py(tower.y), r: 15,
+            fill: "#078858", stroke: "white", "stroke-width": 3
+        });
+
+        element("text", {
+            x: px(tower.x), y: py(tower.y) + 5,
+            fill: "white", "text-anchor": "middle",
+            "font-size": 13, "font-weight": "bold"
+        }, "T");
+
+        element("text", {
+            x: px(tower.x), y: py(tower.y) + 29,
+            fill: "#087443", "text-anchor": "middle",
+            "font-size": 14, "font-weight": "bold"
+        }, tower.name);
+    });
+}
+
+function resetSystem() {
+    selected = [];
+    networkEdges = [];
+    route = [];
+
+    document.getElementById("networkResult").textContent = "Not built";
+    document.getElementById("routeResult").textContent = "Not calculated";
+
+    renderMap();
+    updateStats();
+
+    showMessage("System reset. Select an operation to begin.");
+}
+
+showAreas();
+</script>
+
+</body>
+</html>
+```
